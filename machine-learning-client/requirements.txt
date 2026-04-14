@@ -1,0 +1,8 @@
+librosa
+sounddevice
+pymongo[srv]
+python-dotenv
+pytest
+pytest-cov
+black
+pylint

@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  ml-client:
+    build: ./machine-learning-client
+    env_file: .env
+    # Audio device passthrough (Linux only — remove on macOS/Windows)
+    # devices:
+    #   - /dev/snd:/dev/snd
+    restart: unless-stopped
+    depends_on: []
+
+  web-app:
+    build: ./web-app
+    env_file: .env
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
