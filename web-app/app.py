@@ -2,9 +2,6 @@
 
 from flask import Flask, render_template
 from dotenv import load_dotenv
-import pymongo
-import sounddevice as sd
-import soundfile as sf
 
 load_dotenv()
 
