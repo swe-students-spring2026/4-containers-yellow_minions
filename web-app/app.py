@@ -1,6 +1,12 @@
 """Flask web app for audio upload."""
 
 from flask import Flask, render_template
+from dotenv import load_dotenv
+import pymongo
+import sounddevice as sd
+import soundfile as sf
+
+load_dotenv()
 
 app = Flask(__name__)
 
@@ -12,4 +18,4 @@ def index():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="localhost", port=3000, debug=True)
