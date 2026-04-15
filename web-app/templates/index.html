@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Audio Upload</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Sound Alert Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
 
 <div class="container">
-    <h1>Upload Audio File</h1>
+    <h1>Upload Audio or Video</h1>
+    <p class="subtitle">Detect sound events and show timestamped alerts like “0:14 dog barking” during playback.</p>
 
     <form>
-        <input type="file">
-        <button>Upload</button>
+        <input type="file" accept="audio/*,video/*">
+        <button>Analyze Clip</button>
     </form>
 </div>
 

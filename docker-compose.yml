@@ -1,18 +1,50 @@
-version: "3.8"
-
 services:
+  mongo:
+    image: mongo:7
+    container_name: sound-monitor-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
   ml-client:
     build: ./machine-learning-client
-    env_file: .env
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      MONGO_URI: ${MONGO_URI:-mongodb://mongo:27017}
+      MONGO_DB_NAME: ${MONGO_DB_NAME:-sound_alerts}
+      HF_SOUND_MODEL_ID: ${HF_SOUND_MODEL_ID:-MIT/ast-finetuned-audioset-10-10-0.4593}
+      HF_ASR_MODEL_ID: ${HF_ASR_MODEL_ID:-openai/whisper-tiny.en}
+      POLL_INTERVAL_SECONDS: ${POLL_INTERVAL_SECONDS:-5}
+    depends_on:
+      - mongo
+    volumes:
+      - audio-data:/shared/audio
     # Audio device passthrough (Linux only — remove on macOS/Windows)
     # devices:
     #   - /dev/snd:/dev/snd
     restart: unless-stopped
-    depends_on: []
 
   web-app:
     build: ./web-app
-    env_file: .env
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      FLASK_APP: app.py
+      MONGO_URI: ${MONGO_URI:-mongodb://mongo:27017}
+      MONGO_DB_NAME: ${MONGO_DB_NAME:-sound_alerts}
     ports:
       - "5000:5000"
+    depends_on:
+      - mongo
+    volumes:
+      - audio-data:/shared/audio
     restart: unless-stopped
+
+volumes:
+  mongo-data:
+  audio-data:

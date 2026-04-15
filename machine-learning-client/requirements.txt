@@ -2,7 +2,10 @@ librosa
 sounddevice
 pymongo[srv]
 python-dotenv
+transformers
+torch
 pytest
 pytest-cov
+mongomock
 black
 pylint
