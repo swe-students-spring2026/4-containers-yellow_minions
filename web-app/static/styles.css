@@ -20,6 +20,13 @@ h1 {
     margin-bottom: 20px;
 }
 
+.subtitle {
+    text-align: center;
+    color: #555;
+    margin-top: -8px;
+    margin-bottom: 24px;
+}
+
 input[type="file"] {
     display: block;
     margin-bottom: 15px;

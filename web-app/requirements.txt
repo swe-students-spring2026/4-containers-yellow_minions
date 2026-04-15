@@ -1,11 +1,8 @@
-librosa
-sounddevice
+flask
 pymongo[srv]
 python-dotenv
-transformers
-torch
 pytest
+pytest-flask
 pytest-cov
-mongomock
 black
 pylint

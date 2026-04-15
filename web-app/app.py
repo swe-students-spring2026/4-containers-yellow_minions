@@ -1,4 +1,4 @@
-"""Flask web app for audio upload."""
+"""Flask web app for sound-alert uploads and results."""
 
 from flask import Flask, render_template
 
