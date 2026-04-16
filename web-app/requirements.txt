@@ -6,4 +6,3 @@ pytest-flask
 pytest-cov
 black
 pylint
-gridfs
