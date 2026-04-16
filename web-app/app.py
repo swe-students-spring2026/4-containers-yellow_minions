@@ -1,10 +1,10 @@
 """Flask web app for sound-alert uploads and results."""
 
+import os
+import sys
 from flask import Flask, render_template, request, jsonify
 from pymongo import MongoClient
 from dotenv import load_dotenv
-import os
-import sys
 
 sys.stdout.reconfigure(line_buffering=True)
 load_dotenv()
@@ -14,10 +14,8 @@ mongodb connection
 use .env file to connect to atlas
 MONGO_DB_NAME - name of db collection
 """
-uri = os.getenv("MONGO_URI")
-db_name = os.getenv("MONGO_DB_NAME")
-client = MongoClient(uri)
-db = client[db_name]
+client = MongoClient(os.getenv("MONGO_URI"))
+db = client[os.getenv("MONGO_DB_NAME")]
 
 app = Flask(__name__)
 
@@ -30,7 +28,7 @@ def index():
 def analyze():
     """Send Audio recording to be analyzed"""
     try:
-        file = request.files["audiofile"]
+        # file = request.files["audiofile"]
 
 
         return jsonify({"success": True})
