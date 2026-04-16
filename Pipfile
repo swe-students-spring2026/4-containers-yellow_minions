@@ -4,17 +4,21 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+black = "*"
 pytest = "*"
 pytest-flask = "*"
 flask = "*"
 pylint = "*"
 tomli = "*"
 typing-extensions = "*"
+sounddevice = "*"
 pymongo = "*"
-python-dotenv = "*"
-black = "*"
+colorama = "*"
+numpy = "*"
+soundfile = "*"
+dotenv = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.10"
+python_version = "3.14"
