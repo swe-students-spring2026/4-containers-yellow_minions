@@ -10,9 +10,9 @@
     <h1>Upload Audio or Video</h1>
     <p class="subtitle">Detect sound events and show timestamped alerts like “0:14 dog barking” during playback.</p>
 
-    <form>
-        <input type="file" accept="audio/*,video/*">
-        <button>Analyze Clip</button>
+    <form action = " {{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
+        <input type="file" name="media" accept="audio/*,video/*" required>
+        <button type = "submit ">Analyze Clip</button>
     </form>
 </div>
 
