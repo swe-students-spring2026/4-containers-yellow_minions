@@ -20,7 +20,7 @@ app = Flask(__name__)
 # MONGO_DB_NAME = audio_description
 
 mongo_client = MongoClient(os.getenv("MONGO_URI"))
-db = mongo_client[os.getenv("MONGO_URI")]
+db = mongo_client[os.getenv("MONGO_DB_NAME")]
 bucket = GridFSBucket(db, bucket_name="audio_files")
 analysis_jobs_collection = db["analysis_jobs"]
 
