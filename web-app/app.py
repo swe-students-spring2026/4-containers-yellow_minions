@@ -4,15 +4,15 @@ import os
 import sys
 from flask import Flask, render_template, request, jsonify
 from pymongo import MongoClient
-from gridfs import GridFSBucket 
+from gridfs import GridFSBucket
 from dotenv import load_dotenv
 
 sys.stdout.reconfigure(line_buffering=True)
 load_dotenv()
 
-"""mongodb connection
-use .env file to connect to atlas
-MONGO_DB_NAME - name of db collection"""
+# mongodb connection
+# use .env file to connect to atlas
+# MONGO_DB_NAME - name of db collection
 
 client = MongoClient(os.getenv("MONGO_URI"))
 db = client[os.getenv("MONGO_DB_NAME")]
@@ -32,7 +32,6 @@ def analyze():
 
     if not file or file.filename == "":
         return jsonify({"success": False, "error": "missing file"}), 400
-    
     print(file)
 
     # https://www.mongodb.com/docs/languages/python/pymongo-driver/current/crud/gridfs/
