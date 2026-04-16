@@ -9,9 +9,15 @@ import sys
 sys.stdout.reconfigure(line_buffering=True)
 load_dotenv()
 
+""" 
+mongodb connection
+use .env file to connect to atlas
+MONGO_DB_NAME - name of db collection
+"""
 uri = os.getenv("MONGO_URI")
-print(uri)
+db_name = os.getenv("MONGO_DB_NAME")
 client = MongoClient(uri)
+db = client[db_name]
 
 app = Flask(__name__)
 
@@ -24,7 +30,6 @@ def index():
 def analyze():
     """Send Audio recording to be analyzed"""
     try:
-        print(request.files)
         file = request.files["audiofile"]
         print(file)
         print(file.content_type)
