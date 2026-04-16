@@ -20,10 +20,12 @@ bucket = GridFSBucket(db, bucket_name="audio_files")
 
 app = Flask(__name__)
 
+
 @app.route("/")
 def index():
     """Homepage"""
     return render_template("index.html")
+
 
 @app.route("/analyze", methods=["POST"])
 def analyze():
@@ -36,8 +38,7 @@ def analyze():
 
     # https://www.mongodb.com/docs/languages/python/pymongo-driver/current/crud/gridfs/
     with bucket.open_upload_stream(
-        filename=file.filename,
-        metadata={"content_type": file.content_type}
+        filename=file.filename, metadata={"content_type": file.content_type}
     ) as grid_in:
         file.save(grid_in)
 
@@ -46,6 +47,7 @@ def analyze():
     # except Exception as err:
     #     print("err:", err)
     #     return jsonify({"success": False, "error": str(err)}), 400
+
 
 if __name__ == "__main__":
     app.run(debug=True)

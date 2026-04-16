@@ -4,7 +4,6 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-black = "*"
 pytest = "*"
 pytest-flask = "*"
 flask = "*"
@@ -13,6 +12,7 @@ tomli = "*"
 typing-extensions = "*"
 pymongo = "*"
 python-dotenv = "*"
+black = "*"
 
 [dev-packages]
 
