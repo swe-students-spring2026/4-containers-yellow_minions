@@ -5,9 +5,10 @@ from datetime import datetime, timezone
 
 # from uuid import uuid4
 
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, redirect, url_for
 from gridfs import GridFSBucket
 from pymongo import MongoClient
+from bson import ObjectId
 from pymongo.errors import PyMongoError
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
@@ -58,15 +59,7 @@ def upload():
             "gridfs_file_id": gridfs_file_id,
         }
         inserted_job = analysis_jobs_collection.insert_one(job_document)
-
-        return jsonify(
-            {
-                "success": True,
-                "filename": filename,
-                "job_id": str(inserted_job.inserted_id),
-                "gridfs_file_id": str(gridfs_file_id),
-            }
-        )
+        return redirect(url_for('analysis', job_id= str(inserted_job.inserted_id)))
 
     except PyMongoError as e:
         print(f"database error: {e}")
@@ -75,7 +68,14 @@ def upload():
     except IOError as e:
         print(f"io error: {e}")
         return jsonify({"success": False, "error": "file io error"}), 500
+    
+@app.route("/analysis/<job_id>", methods=["GET"])
+def analysis_page(job_id):
+    audio = analysis_jobs_collection.find({"_id": ObjectId(job_id)})
 
+    render_template("analysis.html", 
+        filename = audio["original_filename"]
+    )
 
 if __name__ == "__main__":
     app.run(debug=True)
