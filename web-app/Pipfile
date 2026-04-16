@@ -11,6 +11,8 @@ flask = "*"
 pylint = "*"
 tomli = "*"
 typing-extensions = "*"
+pymongo = "*"
+python-dotenv = "*"
 
 [dev-packages]
 
