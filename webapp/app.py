@@ -3,8 +3,6 @@
 import os
 
 # import sys
-from datetime import datetime, timezone
-
 # from uuid import uuid4
 
 from flask import Flask, jsonify, render_template, request, redirect, url_for, send_file
@@ -13,6 +11,8 @@ from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 from bson import ObjectId
 from werkzeug.utils import secure_filename
+from mlclient.analyzer import HuggingFaceAudioAnalyzer
+from datetime import datetime, timezone
 from dotenv import load_dotenv
 
 # sys.stdout.reconfigure(line_buffering=True)

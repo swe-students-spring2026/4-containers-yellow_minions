@@ -125,7 +125,7 @@ def build_client_from_env() -> tuple[MLClient, int]:
     load_dotenv()
 
     mongo_uri = os.getenv("MONGO_URI", "mongodb://mongo:27017")
-    db_name = os.getenv("MONGO_DB_NAME", "sound_alerts")
+    db_name = os.getenv("MONGO_DB_NAME", "audio_description")
     sound_model_id = os.getenv(
         "HF_SOUND_MODEL_ID",
         "MIT/ast-finetuned-audioset-10-10-0.4593",
