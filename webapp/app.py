@@ -1,8 +1,10 @@
 """Flask web app for sound-alert uploads and results."""
 
 import os
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-# import sys
 # from uuid import uuid4
 
 from flask import Flask, jsonify, render_template, request, redirect, url_for, send_file
@@ -15,7 +17,7 @@ from mlclient.analyzer import HuggingFaceAudioAnalyzer
 from datetime import datetime, timezone
 from dotenv import load_dotenv
 
-# sys.stdout.reconfigure(line_buffering=True)
+sys.stdout.reconfigure(line_buffering=True)
 load_dotenv()
 app = Flask(__name__)
 
@@ -23,10 +25,17 @@ app = Flask(__name__)
 # MONGO_URI = mongodb+srv://{username}:{password}@cluster.m91q1zi.mongodb.net/?appName=Cluster
 # MONGO_DB_NAME = audio_description
 
+# Change these ids to .env
+analyzer = HuggingFaceAudioAnalyzer(
+    sound_model_id=os.getenv("HF_SOUND_MODEL_ID"),
+    asr_model_id=os.getenv("HF_ASR_MODEL_ID")
+)
+
 mongo_client = MongoClient(os.getenv("MONGO_URI"))
 db = mongo_client[os.getenv("MONGO_DB_NAME")]
 bucket = GridFSBucket(db, bucket_name="audio_files")
 analysis_jobs_collection = db["analysis_jobs"]
+analysis_results_collection = db["analysis_results"]
 
 
 @app.route("/")
@@ -44,7 +53,6 @@ def upload():
         return jsonify({"success": False, "error": "missing file"}), 400
 
     filename = secure_filename(uploaded_file.filename)
-    # unique_filename = f"{uuid4()}_{filename}"
 
     try:
         gridfs_file_id = bucket.upload_from_stream(
@@ -61,6 +69,7 @@ def upload():
             "duration_seconds": None,
             "gridfs_file_id": gridfs_file_id,
         }
+        
         inserted_job = analysis_jobs_collection.insert_one(job_document)
         return redirect(url_for("analysis_page", job_id=str(inserted_job.inserted_id)))
 
@@ -77,12 +86,18 @@ def upload():
 def analysis_page(job_id):
     """Render the analysis page for a given job ID with audio playback and analysis under."""
     audio = analysis_jobs_collection.find_one({"_id": ObjectId(job_id)})
+    
+    results = None
+    if audio["status"] == "done":
+            results = analysis_results_collection.find_one({"job_id": ObjectId(job_id)})
 
     return render_template(
         "analysis.html",
         filename=audio["original_filename"],
         gridfs_id=str(audio["gridfs_file_id"]),
         content_type=audio["media_type"],
+        job_id=job_id,
+        results=results
     )
 
 
@@ -97,6 +112,7 @@ def playback(gridfs_id):
         as_attachment=False,
         download_name=file.filename,
     )
+
 
 
 if __name__ == "__main__":

@@ -6,12 +6,35 @@
 </head>
 <body>
 
-<div class="container">
-    <h1>{{ filename }}</h1>
-    <audio controls>
-        <source src="{{ url_for('playback', gridfs_id=gridfs_id) }}" type="{{ content_type }}">
-    </audio>
-</div>
+    <div class="container">
+        <h1>{{ filename }}</h1>
+        <audio controls>
+            <source src="{{ url_for('playback', gridfs_id=gridfs_id) }}" type="{{ content_type }}">
+        </audio>
+    </div>
+
+    {% if status == 'done' and results %}
+    <div id="results">
+        <h2>Analysis Results</h2>
+        <div id="alerts">
+            <p>Alert Type: {{ results.alert_type }}</p>
+            <p>Alert Confidence: {{ results.alert_confidence }}</p>
+        </div>
+
+        {% if results.full_transcript %}
+            <h3>📝 Transcript</h3>
+            <p>{{ results.full_transcript }}</p>
+        {% endif %}
+
+        {% if results.detections %}
+            <h3>🔊 Sound Detections</h3>
+            <div id="detections">
+                {% for event in results.detections %}
+                <li>{{ event.start_time }} - {{ event.label }} Confidence: ({{ event.confidence }})</li>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
 
 </body>
 </html>

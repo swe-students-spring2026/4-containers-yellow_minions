@@ -9,7 +9,7 @@ services:
       - mongo-data:/data/db
 
   ml-client:
-    build: ./machine-learning-client
+    build: ./mlclient
     env_file:
       - path: .env
         required: false
@@ -29,12 +29,13 @@ services:
     restart: unless-stopped
 
   web-app:
-    build: ./web-app
+    build: ./webapp
     env_file:
       - path: .env
         required: false
     environment:
       FLASK_APP: app.py
+      FLASK_ENV: development
       MONGO_URI: ${MONGO_URI:-mongodb://mongo:27017}
       MONGO_DB_NAME: ${MONGO_DB_NAME:-sound_alerts}
     ports:
