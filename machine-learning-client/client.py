@@ -46,10 +46,9 @@ class MLClient:
         gridfs_id = job.get("gridfs_file_id")
         if gridfs_id is None:
             raise ValueError("Job is missing gridfs_file_id")
-        tmp = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
-        self.bucket.download_to_stream(gridfs_id, tmp)
-        tmp.close()
-        return tmp.name
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+            self.bucket.download_to_stream(gridfs_id, tmp)
+            return tmp.name
 
     def fetch_next_job(self) -> dict[str, Any] | None:
         """Atomically claim one pending job."""

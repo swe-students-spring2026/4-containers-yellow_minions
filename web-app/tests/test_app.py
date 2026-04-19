@@ -65,9 +65,7 @@ class TestUploadRoute:
 
     def test_upload_rejects_empty_filename(self, client):
         data = {"media": (io.BytesIO(b""), "")}
-        response = client.post(
-            "/upload", data=data, content_type="multipart/form-data"
-        )
+        response = client.post("/upload", data=data, content_type="multipart/form-data")
         assert response.status_code == 400
 
     def test_upload_returns_error_json_on_missing_file(self, client):
@@ -80,9 +78,7 @@ class TestUploadRoute:
         file_id = ObjectId()
         mock_gridfs.upload_from_stream.return_value = file_id
         data = {"media": (io.BytesIO(b"fake audio data"), "test.mp3")}
-        response = client.post(
-            "/upload", data=data, content_type="multipart/form-data"
-        )
+        response = client.post("/upload", data=data, content_type="multipart/form-data")
         assert response.status_code == 302
 
     def test_upload_creates_job_in_db(self, client, db, mock_gridfs):
@@ -111,15 +107,19 @@ class TestAnalysisRoute:
         assert response.status_code == 404
 
     def test_analysis_shows_pending_status(self, client, db):
-        job_id = db["analysis_jobs"].insert_one(
-            {
-                "status": "pending",
-                "original_filename": "clip.mp3",
-                "gridfs_file_id": ObjectId(),
-                "media_type": "audio/mpeg",
-                "created_at": datetime.now(timezone.utc),
-            }
-        ).inserted_id
+        job_id = (
+            db["analysis_jobs"]
+            .insert_one(
+                {
+                    "status": "pending",
+                    "original_filename": "clip.mp3",
+                    "gridfs_file_id": ObjectId(),
+                    "media_type": "audio/mpeg",
+                    "created_at": datetime.now(timezone.utc),
+                }
+            )
+            .inserted_id
+        )
         response = client.get(f"/analysis/{job_id}")
         assert response.status_code == 200
         html = response.data.decode()
@@ -127,15 +127,19 @@ class TestAnalysisRoute:
         assert "clip.mp3" in html
 
     def test_analysis_shows_prediction_when_done(self, client, db):
-        job_id = db["analysis_jobs"].insert_one(
-            {
-                "status": "done",
-                "original_filename": "siren.mp3",
-                "gridfs_file_id": ObjectId(),
-                "media_type": "audio/mpeg",
-                "created_at": datetime.now(timezone.utc),
-            }
-        ).inserted_id
+        job_id = (
+            db["analysis_jobs"]
+            .insert_one(
+                {
+                    "status": "done",
+                    "original_filename": "siren.mp3",
+                    "gridfs_file_id": ObjectId(),
+                    "media_type": "audio/mpeg",
+                    "created_at": datetime.now(timezone.utc),
+                }
+            )
+            .inserted_id
+        )
         db["predictions"].insert_one(
             {
                 "job_id": job_id,
@@ -173,30 +177,38 @@ class TestAnalysisRoute:
         assert "ambulance siren" in html
 
     def test_analysis_shows_failed_message(self, client, db):
-        job_id = db["analysis_jobs"].insert_one(
-            {
-                "status": "failed",
-                "original_filename": "bad.mp3",
-                "gridfs_file_id": ObjectId(),
-                "media_type": "audio/mpeg",
-                "created_at": datetime.now(timezone.utc),
-            }
-        ).inserted_id
+        job_id = (
+            db["analysis_jobs"]
+            .insert_one(
+                {
+                    "status": "failed",
+                    "original_filename": "bad.mp3",
+                    "gridfs_file_id": ObjectId(),
+                    "media_type": "audio/mpeg",
+                    "created_at": datetime.now(timezone.utc),
+                }
+            )
+            .inserted_id
+        )
         response = client.get(f"/analysis/{job_id}")
         html = response.data.decode()
         assert response.status_code == 200
         assert "failed" in html.lower()
 
     def test_analysis_auto_refreshes_when_pending(self, client, db):
-        job_id = db["analysis_jobs"].insert_one(
-            {
-                "status": "pending",
-                "original_filename": "wait.mp3",
-                "gridfs_file_id": ObjectId(),
-                "media_type": "audio/mpeg",
-                "created_at": datetime.now(timezone.utc),
-            }
-        ).inserted_id
+        job_id = (
+            db["analysis_jobs"]
+            .insert_one(
+                {
+                    "status": "pending",
+                    "original_filename": "wait.mp3",
+                    "gridfs_file_id": ObjectId(),
+                    "media_type": "audio/mpeg",
+                    "created_at": datetime.now(timezone.utc),
+                }
+            )
+            .inserted_id
+        )
         response = client.get(f"/analysis/{job_id}")
         html = response.data.decode()
         assert 'http-equiv="refresh"' in html
@@ -228,15 +240,19 @@ class TestHistoryRoute:
         assert "done" in html
 
     def test_history_shows_prediction_data(self, client, db):
-        job_id = db["analysis_jobs"].insert_one(
-            {
-                "status": "done",
-                "original_filename": "bark.mp3",
-                "gridfs_file_id": ObjectId(),
-                "media_type": "audio/mpeg",
-                "created_at": datetime.now(timezone.utc),
-            }
-        ).inserted_id
+        job_id = (
+            db["analysis_jobs"]
+            .insert_one(
+                {
+                    "status": "done",
+                    "original_filename": "bark.mp3",
+                    "gridfs_file_id": ObjectId(),
+                    "media_type": "audio/mpeg",
+                    "created_at": datetime.now(timezone.utc),
+                }
+            )
+            .inserted_id
+        )
         db["predictions"].insert_one(
             {
                 "job_id": job_id,
