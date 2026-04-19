@@ -1,0 +1,152 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 700px;
+    margin: 40px auto;
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+h2 {
+    margin-top: 28px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 6px;
+}
+
+h3 {
+    margin-top: 20px;
+    margin-bottom: 8px;
+}
+
+.back-link {
+    display: inline-block;
+    margin-right: 16px;
+    margin-bottom: 12px;
+    color: #007bff;
+    text-decoration: none;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+.player {
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+audio {
+    width: 100%;
+}
+
+.status {
+    text-align: center;
+    font-weight: bold;
+    padding: 8px;
+    border-radius: 5px;
+    margin-bottom: 16px;
+}
+
+.status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-processing {
+    background: #cce5ff;
+    color: #004085;
+}
+
+.status-done {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-failed {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.waiting {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+}
+
+.alert-box {
+    background: #e8f4fd;
+    border-left: 4px solid #007bff;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.alert-label {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.alert-confidence {
+    color: #555;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.detail-key {
+    font-weight: bold;
+    color: #333;
+}
+
+.detail-value {
+    color: #555;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 16px;
+}
+
+th, td {
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background: #f8f9fa;
+    font-weight: bold;
+}
+
+.transcript {
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 5px;
+    line-height: 1.6;
+}
+
+.error-msg {
+    text-align: center;
+    color: #dc3545;
+    font-weight: bold;
+}
