@@ -6,11 +6,13 @@ import argparse
 import logging
 import os
 import time
+import tempfile
 from datetime import datetime, timezone
 from typing import Any
 
 from dotenv import load_dotenv
 from pymongo import MongoClient, ReturnDocument
+from gridfs import GridFSBucket
 
 from analyzer import HuggingFaceAudioAnalyzer
 
@@ -37,14 +39,17 @@ class MLClient:
         self.jobs = self.database[jobs_collection_name]
         self.predictions = self.database[predictions_collection_name]
         self.analyzer = analyzer
+        self.bucket = GridFSBucket(self.database, bucket_name="audio_files")
 
-    @staticmethod
-    def _extract_audio_path(job: dict[str, Any]) -> str:
-        for key in ("audio_path", "file_path", "audio_file_path"):
-            value = job.get(key)
-            if value:
-                return str(value)
-        raise ValueError("Job is missing an audio path field")
+    def _download_audio(self, job):
+        """Download audio from GridFS to a temp file."""
+        gridfs_id = job.get("gridfs_file_id")
+        if gridfs_id is None:
+            raise ValueError("Job is missing gridfs_file_id")
+        tmp = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
+        self.bucket.download_to_stream(gridfs_id, tmp)
+        tmp.close()
+        return tmp.name
 
     def fetch_next_job(self) -> dict[str, Any] | None:
         """Atomically claim one pending job."""
@@ -63,7 +68,7 @@ class MLClient:
     def process_job(self, job: dict[str, Any]) -> dict[str, Any]:
         """Process one job and update collections with outputs."""
         job_id = job["_id"]
-        audio_path = self._extract_audio_path(job)
+        audio_path = self._download_audio(job)
 
         try:
             prediction_output = self.analyzer.analyze(audio_path)
