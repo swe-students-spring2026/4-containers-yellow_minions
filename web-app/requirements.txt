@@ -4,5 +4,6 @@ python-dotenv
 pytest
 pytest-flask
 pytest-cov
+mongomock
 black
 pylint
