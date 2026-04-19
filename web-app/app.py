@@ -27,6 +27,7 @@ mongo_client = MongoClient(os.getenv("MONGO_URI"))
 db = mongo_client[os.getenv("MONGO_DB_NAME")]
 bucket = GridFSBucket(db, bucket_name="audio_files")
 analysis_jobs_collection = db["analysis_jobs"]
+predictions_collection = db["predictions"]
 
 
 @app.route("/")
@@ -76,14 +77,31 @@ def upload():
 @app.route("/analysis/<job_id>")
 def analysis_page(job_id):
     """Render the analysis page for a given job ID with audio playback and analysis under."""
-    audio = analysis_jobs_collection.find_one({"_id": ObjectId(job_id)})
+    job = analysis_jobs_collection.find_one({"_id": ObjectId(job_id)})
+    if job is None:
+        return jsonify({"success": False, "error": "job not found"}), 404
+
+    prediction = predictions_collection.find_one({"job_id": ObjectId(job_id)})
 
     return render_template(
         "analysis.html",
-        filename=audio["original_filename"],
-        gridfs_id=str(audio["gridfs_file_id"]),
-        content_type=audio["media_type"],
+        filename=job.get("original_filename", "unknown"),
+        gridfs_id=str(job.get("gridfs_file_id", "")),
+        content_type=job.get("media_type", "audio/mpeg"),
+        status=job.get("status", "pending"),
+        prediction=prediction,
     )
+
+
+@app.route("/history")
+def history():
+    """Show all past analysis jobs with their results."""
+    all_jobs = list(analysis_jobs_collection.find().sort("created_at", -1).limit(50))
+    for job in all_jobs:
+        job["_id_str"] = str(job["_id"])
+        pred = predictions_collection.find_one({"job_id": job["_id"]})
+        job["prediction"] = pred
+    return render_template("history.html", jobs=all_jobs)
 
 
 @app.route("/playback/<gridfs_id>", methods=["GET"])

@@ -1,16 +1,101 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Sound Alert Assistant</title>
+    <title>Analysis - {{ filename }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='analysis.css') }}">
+    {% if status in ['pending', 'processing'] %}
+    <meta http-equiv="refresh" content="5">
+    {% endif %}
 </head>
 <body>
 
 <div class="container">
+    <a href="{{ url_for('index') }}" class="back-link">Upload another clip</a>
+    <a href="{{ url_for('history') }}" class="back-link">View history</a>
+
     <h1>{{ filename }}</h1>
-    <audio controls>
-        <source src="{{ url_for('playback', gridfs_id=gridfs_id) }}" type="{{ content_type }}">
-    </audio>
+
+    <div class="player">
+        <audio controls>
+            <source src="{{ url_for('playback', gridfs_id=gridfs_id) }}" type="{{ content_type }}">
+        </audio>
+    </div>
+
+    <div class="status status-{{ status }}">
+        Status: {{ status }}
+    </div>
+
+    {% if status in ['pending', 'processing'] %}
+    <p class="waiting">Analyzing your clip. This page will refresh automatically.</p>
+    {% endif %}
+
+    {% if prediction %}
+    <div class="results">
+        <h2>Detection Results</h2>
+
+        <div class="alert-box">
+            <span class="alert-label">{{ prediction.alert_type }}</span>
+            <span class="alert-confidence">{{ "%.0f"|format(prediction.alert_confidence * 100) }}% confidence</span>
+        </div>
+
+        <div class="detail-row">
+            <span class="detail-key">Category</span>
+            <span class="detail-value">{{ prediction.category }}</span>
+        </div>
+
+        <div class="detail-row">
+            <span class="detail-key">Model</span>
+            <span class="detail-value">{{ prediction.model_name }}</span>
+        </div>
+
+        {% if prediction.detections %}
+        <h3>Timestamped Detections</h3>
+        <table>
+            <tr>
+                <th>Time</th>
+                <th>Sound</th>
+                <th>Category</th>
+                <th>Confidence</th>
+            </tr>
+            {% for d in prediction.detections %}
+            <tr>
+                <td>{{ "%.1f"|format(d.start_time) }}s - {{ "%.1f"|format(d.end_time) }}s</td>
+                <td>{{ d.label }}</td>
+                <td>{{ d.category }}</td>
+                <td>{{ "%.0f"|format(d.confidence * 100) }}%</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
+
+        {% if prediction.captions %}
+        <h3>Speech Captions</h3>
+        <table>
+            <tr>
+                <th>Time</th>
+                <th>Text</th>
+                <th>Confidence</th>
+            </tr>
+            {% for c in prediction.captions %}
+            <tr>
+                <td>{{ "%.1f"|format(c.start_time) }}s - {{ "%.1f"|format(c.end_time) }}s</td>
+                <td>{{ c.text }}</td>
+                <td>{{ "%.0f"|format(c.confidence * 100) }}%</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
+
+        {% if prediction.full_transcript %}
+        <h3>Full Transcript</h3>
+        <p class="transcript">{{ prediction.full_transcript }}</p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if status == 'failed' %}
+    <p class="error-msg">Analysis failed. Please try uploading again.</p>
+    {% endif %}
 </div>
 
 </body>

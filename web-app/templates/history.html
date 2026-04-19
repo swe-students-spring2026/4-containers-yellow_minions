@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Analysis History</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='analysis.css') }}">
+</head>
+<body>
+
+<div class="container">
+    <a href="{{ url_for('index') }}" class="back-link">Upload new clip</a>
+
+    <h1>Analysis History</h1>
+
+    {% if jobs %}
+    <table>
+        <tr>
+            <th>File</th>
+            <th>Status</th>
+            <th>Alert</th>
+            <th>Confidence</th>
+            <th>View</th>
+        </tr>
+        {% for job in jobs %}
+        <tr>
+            <td>{{ job.original_filename }}</td>
+            <td class="status-{{ job.status }}">{{ job.status }}</td>
+            <td>
+                {% if job.prediction %}
+                    {{ job.prediction.alert_type }}
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+            <td>
+                {% if job.prediction %}
+                    {{ "%.0f"|format(job.prediction.alert_confidence * 100) }}%
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+            <td><a href="{{ url_for('analysis_page', job_id=job._id_str) }}">Details</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p>No analyses yet. Upload a clip to get started.</p>
+    {% endif %}
+</div>
+
+</body>
+</html>
