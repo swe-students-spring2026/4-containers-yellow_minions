@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sound Analytics Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+</head>
+<body>
+
+<div class="container">
+    <a href="{{ url_for('index') }}" class="back-link">Upload new clip</a>
+    <a href="{{ url_for('history') }}" class="back-link">View history</a>
+
+    <h1>Sound Analytics Dashboard</h1>
+
+    <div class="summary-grid">
+        <div class="summary-card">
+            <div class="summary-title">Processed clips</div>
+            <div class="summary-value">{{ done_jobs_count }}</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-title">Failed clips</div>
+            <div class="summary-value">{{ failed_jobs_count }}</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-title">All detections</div>
+            <div class="summary-value">{{ global_stats.total_detections }}</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-title">Avg detection confidence</div>
+            <div class="summary-value">{{ "%.0f"|format(global_stats.avg_detection_confidence * 100) }}%</div>
+        </div>
+    </div>
+
+    <h2>Current Clip Analytics</h2>
+    {% if selected_job and clip_stats %}
+    <p class="muted">File: <strong>{{ selected_job.original_filename }}</strong></p>
+
+    <div class="summary-grid clip-grid">
+        <div class="summary-card">
+            <div class="summary-title">Clip detections</div>
+            <div class="summary-value">{{ clip_stats.total_detections }}</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-title">Analyzed duration</div>
+            <div class="summary-value">{{ "%.1f"|format(clip_stats.analyzed_duration_seconds) }}s</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-title">Primary alert</div>
+            <div class="summary-value">{{ selected_prediction.alert_type }}</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-title">Alert confidence</div>
+            <div class="summary-value">{{ "%.0f"|format(selected_prediction.alert_confidence * 100) }}%</div>
+        </div>
+    </div>
+
+    <div class="table-block">
+        <h3>Most Common Sounds in This Clip</h3>
+        {% if clip_stats.top_sounds %}
+        <div class="chart-grid">
+            {% for row in clip_stats.top_sounds %}
+            <div class="chart-row">
+                <div class="chart-head">
+                    <span class="chart-label">{{ row.label }}</span>
+                    <span class="chart-value">{{ row.percent }}%</span>
+                </div>
+                <div class="chart-track">
+                    <div class="chart-fill" style="width: {{ row.percent }}%;"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <table>
+            <tr>
+                <th>Sound</th>
+                <th>Count</th>
+                <th>Share</th>
+            </tr>
+            {% for row in clip_stats.top_sounds %}
+            <tr>
+                <td>{{ row.label }}</td>
+                <td>{{ row.count }}</td>
+                <td>{{ row.percent }}%</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <p class="muted">No detections for this clip.</p>
+        {% endif %}
+    </div>
+    {% else %}
+    <p class="muted">No successful clip is available yet.</p>
+    {% endif %}
+
+    <h2>All Successful Clips Analytics</h2>
+
+    <div class="table-block">
+        <h3>Most Common Sounds (Global)</h3>
+        {% if global_stats.top_sounds %}
+        <div class="chart-grid">
+            {% for row in global_stats.top_sounds %}
+            <div class="chart-row">
+                <div class="chart-head">
+                    <span class="chart-label">{{ row.label }}</span>
+                    <span class="chart-value">{{ row.percent }}%</span>
+                </div>
+                <div class="chart-track">
+                    <div class="chart-fill" style="width: {{ row.percent }}%;"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <table>
+            <tr>
+                <th>Sound</th>
+                <th>Count</th>
+                <th>Share</th>
+            </tr>
+            {% for row in global_stats.top_sounds %}
+            <tr>
+                <td>{{ row.label }}</td>
+                <td>{{ row.count }}</td>
+                <td>{{ row.percent }}%</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <p class="muted">No successful detections yet.</p>
+        {% endif %}
+    </div>
+
+    <div class="table-block">
+        <h3>Category Breakdown (Global)</h3>
+        {% if global_stats.top_categories %}
+        <div class="chart-grid">
+            {% for row in global_stats.top_categories %}
+            <div class="chart-row">
+                <div class="chart-head">
+                    <span class="chart-label">{{ row.label }}</span>
+                    <span class="chart-value">{{ row.percent }}%</span>
+                </div>
+                <div class="chart-track">
+                    <div class="chart-fill" style="width: {{ row.percent }}%;"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <table>
+            <tr>
+                <th>Category</th>
+                <th>Count</th>
+                <th>Share</th>
+            </tr>
+            {% for row in global_stats.top_categories %}
+            <tr>
+                <td>{{ row.label }}</td>
+                <td>{{ row.count }}</td>
+                <td>{{ row.percent }}%</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <p class="muted">No category data yet.</p>
+        {% endif %}
+    </div>
+</div>
+
+</body>
+</html>

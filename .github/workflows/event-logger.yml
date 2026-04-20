@@ -7,6 +7,7 @@ on:
     branches: [main, master, pipfile-experiment]
 jobs:
   log:
+    if: ${{ secrets.COMMIT_LOG_API != '' }}
     runs-on: ubuntu-latest
     env:
       PIPENV_PIPFILE: .github/workflows/Pipfile # so this script doesn't use the Pipfile in the root directory

@@ -7,6 +7,11 @@ Quick start
 	- `HF_SOUND_MODEL_ID` (default: `MIT/ast-finetuned-audioset-10-10-0.4593`)
 	- `HF_ASR_MODEL_ID` (default: `openai/whisper-tiny.en`)
 	- `POLL_INTERVAL_SECONDS` (default: `5`)
+	- `SOUND_TOP_K` (default: `20`)
+	- `SOUND_CHUNK_SECONDS` (default: `10`)
+	- `SPEECH_CHUNK_SECONDS` (default: `5`)
+	- `ENABLE_CAPTIONS` (default: `false`, speeds up analysis on non-speech clips)
+	- `MAX_AUDIO_SECONDS` (default: `45`, caps analysis duration)
 3) Run worker:
 	- `python client.py` (continuous polling)
 	- `python client.py --once` (process one pending job)
@@ -14,9 +19,9 @@ Quick start
 Mongo contract for teammate integration
 - Input collection: `analysis_jobs`
 - Output collection: `predictions`
-- Alert labels: `siren`, `car_horn`, `bicycle`, `dog_bark`, `alarm`, `engine`, `footsteps`
-- Speech captions: `captions` array with `start_time`, `end_time`, `text`, and `confidence`
-- Full transcript: `full_transcript` string for searchable text and playback captions
+- Alert labels include urban sounds such as `siren`, `car_horn`, `traffic_noise`, `dog_bark`, `bird_chirp`, `engine`, `construction`, and others inferred from model output labels
+- Speech captions: `captions` array with `start_time`, `end_time`, `text`, and `confidence` (only when `ENABLE_CAPTIONS=true`)
+- Full transcript: `full_transcript` string for searchable text and playback captions (empty when captions disabled)
 - If the user uploads video, the web app should extract the audio track and store the extracted path in `audio_path`
 - Optional helper fields for the web team: `media_path`, `media_type`, `original_filename`, `duration_seconds`
 

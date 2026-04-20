@@ -20,15 +20,16 @@ jobs:
           cd ${{ matrix.subdir }}
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
+          python -m pip install pylint black
       - name: Lint with pylint
         if: ${{ hashFiles(format('{0}/**/*.py', matrix.subdir)) != '' }}
         # you may set pylint to ignore any files or dependencies that make no sense to lint
         run: |
           cd ${{ matrix.subdir }}
-          find . -name "*.py" -not -path "./tests/*" -print0 | xargs -0 pylint
+          find . -name "*.py" -not -path "./tests/*" -print0 | xargs -0 python -m pylint
       - name: Format with black
         if: ${{ hashFiles(format('{0}/**/*.py', matrix.subdir)) != '' }}
         # you may set black to ignore any files or dependencies that make no sense to format
         run: |
           cd ${{ matrix.subdir }}
-          black --diff --check .
+          python -m black --diff --check .

@@ -58,6 +58,8 @@ class MLClient:
                 "$set": {
                     "status": "processing",
                     "started_at": utc_now(),
+                    "progress_percent": 0,
+                    "progress_stage": "queued",
                 }
             },
             sort=[("created_at", 1)],
@@ -68,9 +70,29 @@ class MLClient:
         """Process one job and update collections with outputs."""
         job_id = job["_id"]
         audio_path = self._download_audio(job)
+        last_progress = -1
+
+        def on_progress(percent: int, stage: str):
+            nonlocal last_progress
+            if percent == last_progress:
+                return
+            last_progress = percent
+            self.jobs.update_one(
+                {"_id": job_id},
+                {
+                    "$set": {
+                        "progress_percent": percent,
+                        "progress_stage": stage,
+                        "updated_at": utc_now(),
+                    }
+                },
+            )
 
         try:
-            prediction_output = self.analyzer.analyze(audio_path)
+            prediction_output = self.analyzer.analyze(
+                audio_path,
+                progress_callback=on_progress,
+            )
             prediction_doc = {
                 "job_id": job_id,
                 "audio_path": audio_path,
@@ -86,6 +108,8 @@ class MLClient:
                         "status": "done",
                         "completed_at": utc_now(),
                         "prediction_id": inserted_prediction.inserted_id,
+                        "progress_percent": 100,
+                        "progress_stage": "completed",
                     }
                 },
             )
@@ -99,6 +123,7 @@ class MLClient:
                         "status": "failed",
                         "completed_at": utc_now(),
                         "error": str(exc),
+                        "progress_stage": "failed",
                     }
                 },
             )
@@ -135,11 +160,30 @@ def build_client_from_env() -> tuple[MLClient, int]:
         "MIT/ast-finetuned-audioset-10-10-0.4593",
     )
     asr_model_id = os.getenv("HF_ASR_MODEL_ID", "openai/whisper-tiny.en")
-    poll_interval_seconds = int(os.getenv("POLL_INTERVAL_SECONDS", "5"))
+    poll_interval_seconds = int(os.getenv("POLL_INTERVAL_SECONDS", "2"))
+    sound_top_k = int(os.getenv("SOUND_TOP_K", "25"))
+    sound_chunk_seconds = float(os.getenv("SOUND_CHUNK_SECONDS", "10"))
+    sound_hop_seconds = float(os.getenv("SOUND_HOP_SECONDS", "5"))
+    speech_chunk_seconds = float(os.getenv("SPEECH_CHUNK_SECONDS", "5"))
+    enable_captions = os.getenv("ENABLE_CAPTIONS", "false").lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+    max_audio_seconds = float(os.getenv("MAX_AUDIO_SECONDS", "120"))
+    min_alert_confidence = float(os.getenv("MIN_ALERT_CONFIDENCE", "0.03"))
 
     analyzer = HuggingFaceAudioAnalyzer(
         sound_model_id=sound_model_id,
         asr_model_id=asr_model_id,
+        top_k=sound_top_k,
+        sound_chunk_seconds=sound_chunk_seconds,
+        sound_hop_seconds=sound_hop_seconds,
+        speech_chunk_seconds=speech_chunk_seconds,
+        enable_captions=enable_captions,
+        max_audio_seconds=max_audio_seconds,
+        min_alert_confidence=min_alert_confidence,
     )
     client = MLClient(
         mongo_uri=mongo_uri,

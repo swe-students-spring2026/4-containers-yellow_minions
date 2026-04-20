@@ -18,7 +18,7 @@ services:
       MONGO_DB_NAME: ${MONGO_DB_NAME:-sound_alerts}
       HF_SOUND_MODEL_ID: ${HF_SOUND_MODEL_ID:-MIT/ast-finetuned-audioset-10-10-0.4593}
       HF_ASR_MODEL_ID: ${HF_ASR_MODEL_ID:-openai/whisper-tiny.en}
-      POLL_INTERVAL_SECONDS: ${POLL_INTERVAL_SECONDS:-5}
+      POLL_INTERVAL_SECONDS: ${POLL_INTERVAL_SECONDS:-2}
     depends_on:
       - mongo
     volumes:

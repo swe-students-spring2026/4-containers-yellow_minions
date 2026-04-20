@@ -27,6 +27,18 @@ h1 {
     margin-bottom: 24px;
 }
 
+.nav-link {
+    display: inline-block;
+    margin-right: 14px;
+    margin-bottom: 12px;
+    color: #007BFF;
+    text-decoration: none;
+}
+
+.nav-link:hover {
+    text-decoration: underline;
+}
+
 input[type="file"] {
     display: block;
     margin-bottom: 15px;
