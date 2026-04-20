@@ -4,7 +4,7 @@
     <title>Analysis - {{ filename }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='analysis.css') }}">
     {% if status in ['pending', 'processing'] %}
-    <meta http-equiv="refresh" content="5">
+    <meta http-equiv="refresh" content="3">
     {% endif %}
 </head>
 <body>
@@ -12,13 +12,29 @@
 <div class="container">
     <a href="{{ url_for('index') }}" class="back-link">Upload another clip</a>
     <a href="{{ url_for('history') }}" class="back-link">View history</a>
+    <a href="{{ url_for('dashboard', job_id=job_id) }}" class="back-link">View dashboard</a>
 
     <h1>{{ filename }}</h1>
 
     <div class="player">
-        <audio controls>
+        {% if is_video %}
+        <video id="media-player" controls preload="metadata">
+            <source src="{{ url_for('playback', gridfs_id=gridfs_id) }}" type="{{ content_type }}">
+        </video>
+        {% else %}
+        <audio id="media-player" controls preload="metadata">
             <source src="{{ url_for('playback', gridfs_id=gridfs_id) }}" type="{{ content_type }}">
         </audio>
+        {% endif %}
+    </div>
+
+    <div class="scrubber-wrap">
+        <label for="timeline">Playback timeline</label>
+        <input id="timeline" type="range" min="0" max="100" step="0.1" value="0">
+        <div class="time-row">
+            <span id="current-time">0:00</span>
+            <span id="duration-time">0:00</span>
+        </div>
     </div>
 
     <div class="status status-{{ status }}">
@@ -26,6 +42,12 @@
     </div>
 
     {% if status in ['pending', 'processing'] %}
+    <div class="progress-wrap" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ progress_percent }}">
+        <div class="progress-label">Processing {{ progress_percent }}% · {{ progress_stage.replace('_', ' ') }}</div>
+        <div class="progress-track">
+            <div class="progress-fill" style="width: {{ progress_percent }}%;"></div>
+        </div>
+    </div>
     <p class="waiting">Analyzing your clip. This page will refresh automatically.</p>
     {% endif %}
 
@@ -97,6 +119,44 @@
     <p class="error-msg">Analysis failed. Please try uploading again.</p>
     {% endif %}
 </div>
+
+<script>
+    const mediaPlayer = document.getElementById("media-player");
+    const timeline = document.getElementById("timeline");
+    const currentTimeNode = document.getElementById("current-time");
+    const durationNode = document.getElementById("duration-time");
+
+    function formatTime(seconds) {
+        if (!Number.isFinite(seconds) || seconds < 0) {
+            return "0:00";
+        }
+        const minutes = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60).toString().padStart(2, "0");
+        return `${minutes}:${secs}`;
+    }
+
+    function syncTimeline() {
+        if (!mediaPlayer || !Number.isFinite(mediaPlayer.duration) || mediaPlayer.duration <= 0) {
+            return;
+        }
+        const percent = (mediaPlayer.currentTime / mediaPlayer.duration) * 100;
+        timeline.value = `${percent}`;
+        currentTimeNode.textContent = formatTime(mediaPlayer.currentTime);
+        durationNode.textContent = formatTime(mediaPlayer.duration);
+    }
+
+    if (mediaPlayer) {
+        mediaPlayer.addEventListener("loadedmetadata", syncTimeline);
+        mediaPlayer.addEventListener("timeupdate", syncTimeline);
+        timeline.addEventListener("input", () => {
+            if (!Number.isFinite(mediaPlayer.duration) || mediaPlayer.duration <= 0) {
+                return;
+            }
+            mediaPlayer.currentTime = (Number(timeline.value) / 100) * mediaPlayer.duration;
+            syncTimeline();
+        });
+    }
+</script>
 
 </body>
 </html>
